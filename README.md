@@ -1,35 +1,23 @@
-# atlas_of_consonance
+# Atlas of Consonance
 
-FIXME: description
+Tools to explore ideas from Norman Sohl's [Atlas of Consonance](http://www.sohl.com/mt/maptone.html) with Overtone and Quil.
 
 ## Installation
 
-Download from http://example.com/FIXME.
+Clone this repo.
 
 ## Usage
 
-FIXME: explanation
+lein run
 
-    $ java -jar atlas_of_consonance-0.1.0-standalone.jar [args]
+Then click in the scale to hear either the Consonance-inspired tones or the standard diatonic tuning notes.
 
 ## Options
 
-FIXME: listing of options this app accepts.
-
-## Examples
-
-...
-
-### Bugs
-
-...
-
-### Any Other Sections
-### That You Think
-### Might be Useful
+None yet.
 
 ## License
 
-Copyright © 2013 FIXME
+Copyright © 2013 Roger Allen
 
 Distributed under the Eclipse Public License, the same as Clojure.
