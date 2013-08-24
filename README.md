@@ -12,7 +12,7 @@ lein run
 
 Then click in the scale to hear either the Consonance-inspired tones or the standard diatonic tuning notes.
 
-[![Screenshot](https://github.com/rogerallen/atlas_of_consonance/raw/master/doc/atlas1.png)]
+![Screenshot](https://github.com/rogerallen/atlas_of_consonance/raw/master/doc/atlas1.png)
 
 ## Options
 
