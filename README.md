@@ -14,6 +14,18 @@ Then click in the scale to hear either the Consonance-inspired tones or the stan
 
 ![Screenshot](https://github.com/rogerallen/atlas_of_consonance/raw/master/doc/atlas1.png)
 
+or use your favorite repl for more control
+
+```clj
+user> (ns atlas-of-consonance.atlas1)
+nil
+atlas-of-consonance.atlas1> (run)                ; to bring up the window
+#'atlas-of-consonance.atlas1/doodle
+atlas-of-consonance.atlas1> (set-num-octaves 50) ; to see more overtones
+nil
+atlas-of-consonance.atlas1> (o/stop)             ; if a note goes wonky
+```
+
 ## Options
 
 None yet.
