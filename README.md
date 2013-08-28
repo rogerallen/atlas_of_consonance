@@ -8,7 +8,9 @@ Clone this repo.
 
 ## Usage
 
+```clj
 lein run
+```
 
 Then click in the scale to hear either the Consonance-inspired tones or the standard diatonic tuning notes.
 

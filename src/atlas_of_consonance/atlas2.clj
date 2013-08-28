@@ -1,10 +1,12 @@
-(ns atlas-of-consonance.atlas1
+(ns atlas-of-consonance.atlas2
   (:require [overtone.live :as o]
             [quil.core :as q]))
 
 ;; ======================================================================
 ;; ideas from Norman Sohl's Atlas of Consonance
 ;; http://www.sohl.com/mt/maptone.html
+
+;; FIXME -- move this to a common location
 
 (defn overtone-seq
   "create an infinite sequence of overtones, given a tonic freq f"
@@ -80,19 +82,22 @@
 ;; FIXME – dynamically use number of octaves to add overtones to sin-osc?
 (o/defsynth cons-synth
   [tonic-freq 200
-   note-freq  300
+   note1-freq 300
+   note2-freq 400
    gate       1]
   (let [num-octaves 5
         a (o/mix (o/sin-osc (map #(* (+ 1 %) tonic-freq) (range num-octaves))))
-        b (o/mix (o/sin-osc (map #(* (+ 1 %) note-freq) (range num-octaves))))
+        b (o/mix (o/sin-osc (map #(* (+ 1 %) note1-freq) (range num-octaves))))
+        c (o/mix (o/sin-osc (map #(* (+ 1 %) note2-freq) (range num-octaves))))
         e (o/env-gen (o/asr 0.1 1.0 0.5) :gate gate :action o/FREE)]
-  (o/out 0 (o/pan2 (* e (o/mix [a b])) 0))))
+  (o/out 0 (o/pan2 (* e (o/mix [a b c])) 0))))
 
 ;; ======================================================================
 ;; "public" state to play with
 (defonce tonic-freq-atom (atom 0))
-(defonce note-freq-atom (atom 0))
-(defonce freq-histo-atom (atom ()))
+(defonce note1-freq-atom (atom 0))
+(defonce note2-freq-atom (atom 0))
+(defonce chord-histo-atom (atom ()))
 (defonce synth-atom (atom nil))
 
 (defn set-tonic-freq [f]
@@ -101,20 +106,25 @@
     (o/ctl @synth-atom :tonic-freq f))
   nil)
 
-(defn set-note-freq [f]
-  (swap! note-freq-atom (fn [_] f))
+(defn set-note1-freq [f]
+  (swap! note1-freq-atom (fn [_] f))
   (when @synth-atom
-    (o/ctl @synth-atom :note-freq f))
+    (o/ctl @synth-atom :note1-freq f))
+  nil)
+
+(defn set-note2-freq [f]
+  (swap! note2-freq-atom (fn [_] f))
+  (when @synth-atom
+    (o/ctl @synth-atom :note2-freq f))
   nil)
 
 (defn set-num-octaves [n]
-  (swap! freq-histo-atom
-         (fn [x] (sorted-freq-map (take-norm-per-octave-seqs
-                                  @tonic-freq-atom n))))
+  (swap! chord-histo-atom
+         (fn [x] (chords-with-overtones n @tonic-freq-atom)))
   nil)
 
 (defn start-synth []
-  (swap! synth-atom (fn [_] (cons-synth @tonic-freq-atom @note-freq-atom))))
+  (swap! synth-atom (fn [_] (cons-synth @tonic-freq-atom @note1-freq-atom @note2-freq-atom))))
 (defn stop-synth []
   (when @synth-atom
     (o/ctl @synth-atom :gate 0)
@@ -124,7 +134,8 @@
 ;; Quil routines
 (defn setup []
   (set-tonic-freq  262)
-  (set-note-freq   262)
+  (set-note1-freq  262)
+  (set-note2-freq  262)
   (set-num-octaves 13)
   (q/smooth)
   (q/frame-rate 30))
@@ -143,20 +154,24 @@
         (q/line x h2 x (+ h2 20))
         (q/text s (- x sw2) (- (q/height) (/ b 2)))))))
 
-(defn draw-consonance-hatches
-  [b h2 max-freq]
+(defn draw-consonance-grid
+  [b]
   (dorun
-   (doseq [k  (keys @freq-histo-atom)]
-     (let [w  (@freq-histo-atom k)
-           nw (Math/pow (/ w max-freq) 0.75) ;; a bit non-linear
-           x  (q/lerp b (- (q/width) b)
-                      (/ (- k @tonic-freq-atom) @tonic-freq-atom))
-           a  (q/lerp 0 255 nw)
-           sh (+ (/ b 10) (* 9 (/ b 10) nw))]
-       (q/stroke 200 0 0 a)
-       (q/stroke-weight 1.5)
-       (q/line x (- h2 sh) x h2)))))
+   (doseq [[f0 f1 f2 w] @chord-histo-atom]
+     (let [nw (* 3 (Math/pow w 0.85)) ;; FIXME
+           [x y] (mapv #(q/lerp b (- (q/width) b)
+                                (/ (- % @tonic-freq-atom) @tonic-freq-atom))
+                       [f1 f2])
+           y (- (q/height) y)]
+       (q/stroke 200 0 0)
+       (q/stroke-weight 1.0)
+       (q/line x b x (- (q/height) b))
+       (q/line b y (- (q/width) b) y)
+       (q/fill 0 0 200)
+       (q/stroke 0 0 200)
+       (q/ellipse x y nw nw)))))
 
+(comment
 (defn draw-x-axis
   [b h2]
   (q/stroke 0 0 0)
@@ -166,21 +181,20 @@
 (defn draw-note [b]
   (when @synth-atom
     (let [x (q/lerp b (- (q/width) b)
-                    (/ (- @note-freq-atom @tonic-freq-atom) @tonic-freq-atom))]
+                    (/ (- @note1-freq-atom @tonic-freq-atom) @tonic-freq-atom))]
       (q/stroke 0 0 240)
       (q/stroke-weight 3)
       (q/line x b x (- (q/height) b))
       (q/line b b b (- (q/height) b)))))
+)
 
 (defn draw []
-  (let [b 50
-        h2 (/ (q/height) 2)
-        max-freq (apply max (vals @freq-histo-atom))]
+  (let [b 50]
     (q/background 250)
-    (draw-consonance-hatches b h2 max-freq)
-    (draw-diatonic-hatches b h2)
-    (draw-x-axis b h2)
-    (draw-note b)))
+    (draw-consonance-grid b)))
+    ;(draw-diatonic-hatches b h2)
+    ;(draw-x-axis b h2)
+    ;(draw-note b)))
 
 (defn get-closest-seq-freq
   "given sequence of frequencies fs and a goal freq f, return the
@@ -193,6 +207,7 @@
   (get-closest-seq-freq f (map #(* @tonic-freq-atom (Math/pow 2 (/ % 12)))
                                (range 13))))
 
+(comment
 (defn get-closest-consonance-freq
   [f]
   (get-closest-seq-freq f (keys @freq-histo-atom)))
@@ -214,15 +229,15 @@
     (if (q/mouse-state)
       (start-synth)
       (stop-synth))))
-
+)
 (defn run []
   (q/defsketch doodle
-    :title          "atlas1"
+    :title          "atlas2"
     :setup          setup
     :draw           draw
-    :mouse-pressed  mouse-button
-    :mouse-released mouse-button
-    :size           [800 150]))
+    ;:mouse-pressed  mouse-button
+    ;:mouse-released mouse-button
+    :size           [800 800]))
 
 ;; exec this to start the window
 ;; (run)
@@ -236,5 +251,6 @@
 ;; use (o/stop) if it gets stuck playing
 
 ;; (set-tonic-freq 130)
-;; (set-num-octaves 7)
-;; (set-num-octaves 50)
+;; (set-num-octaves 11)
+;; (set-num-octaves 18)
+;; (set-num-octaves 21)
