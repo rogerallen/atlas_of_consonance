@@ -21,13 +21,14 @@ lein run 2
 ```
 
 Then click in the grid to hear either the Consonance-inspired chords or the standard diatonic tuning chords.
+Use the shift key to select the chord-type.
 
 ![Screenshot](https://github.com/rogerallen/atlas_of_consonance/raw/master/doc/atlas2.png)
 
 or use your favorite repl for more control like this
 
 ```clj
-user> (ns atlas-of-consonance.atlas1)
+user> (ns atlas-of-consonance.atlas1)            ; or atlas2
 nil
 atlas-of-consonance.atlas1> (run)                ; to bring up the window
 #'atlas-of-consonance.atlas1/doodle

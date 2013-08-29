@@ -1,7 +1,8 @@
 (ns atlas-of-consonance.atlas2
   (:use atlas-of-consonance.common)
   (:require [overtone.live :as o]
-            [quil.core :as q]))
+            [quil.core :as q])
+  (:import java.awt.event.KeyEvent))
 
 ;; ======================================================================
 ;; overtone synth that plays a tonic and several overtones, plus
@@ -28,6 +29,7 @@
 (defonce freq-histo-atom (atom ()))
 (defonce chord-histo-atom (atom ()))
 (defonce synth-atom (atom nil))
+(defonce shift-key-down-atom (atom false))
 
 (defn set-tonic-freq [f]
   (swap! tonic-freq-atom (fn [_] f))
@@ -55,6 +57,10 @@
          (fn [x] (chords-with-overtones n @tonic-freq-atom)))
   nil)
 
+(defn set-shift-key-down [v]
+  (swap! shift-key-down-atom (fn [x] v))
+  nil)
+
 (defn start-synth []
   (swap! synth-atom (fn [_] (cons-synth @tonic-freq-atom @note1-freq-atom @note2-freq-atom))))
 (defn stop-synth []
@@ -74,8 +80,8 @@
 
 (defn draw-diatonic-grid
   [b]
-  (q/stroke-weight 1.5)
-  (q/stroke 0 0 0)
+  (q/stroke-weight 1.0)
+  (q/stroke 0 0 0 128)
   (q/fill 0 0 0)
   (let [note-str ["C" "C♯" "D" "D♯" "E" "F" "F♯" "G" "G♯" "A" "A♯" "B" "C"]]
     (dotimes [i 13]
@@ -86,8 +92,13 @@
             y (- (q/height) y)
             [xs ys] (mapv note-str [i j])
             xw2 (/ (q/text-width xs) 2)]
-        (q/line x (- (q/height) b) x (+ (- (q/height) b) 10))
-        (q/line b y (- b 10) y)
+        (q/line x (if @shift-key-down-atom b (- (q/height) b) )
+                x (+ (- (q/height) b) 10))
+        (q/line (- b 10) y
+                (if @shift-key-down-atom
+                  (- (q/width) b)
+                  b)
+                y)
         (q/text-align :center :baseline)
         (q/text xs x (- (q/height) (/ b 2)))
         (q/text-align :right :center)
@@ -118,9 +129,9 @@
           y (q/lerp b (- (q/height) b)
                     (/ (- @note2-freq-atom @tonic-freq-atom) @tonic-freq-atom))
           y (- (q/height) y)]
-      (q/stroke 0 240 240)
+      (q/stroke 0 0 0)
       (q/fill 0 0 0 0)
-      (q/stroke-weight 3)
+      (q/stroke-weight 2)
       (q/ellipse x y 20 20))))
 
 (defn draw []
@@ -154,10 +165,11 @@
         f1 (q/lerp @tonic-freq-atom (* 2 @tonic-freq-atom)
                    (/ (- x b) (- (q/width) (* 2 b))))
         f2 (q/lerp @tonic-freq-atom (* 2 @tonic-freq-atom)
-                   (/ (- y b) (- (q/height) (* 2 b))))]
-    ;;(get-closest-consonance-freq f))))
-    (vector (get-closest-consonance-freq f1)
-            (get-closest-consonance-freq f2))))
+                   (/ (- y b) (- (q/height) (* 2 b))))
+        close-fn (if @shift-key-down-atom
+                   get-closest-diatonic-freq
+                   get-closest-consonance-freq)]
+    (mapv close-fn [f1 f2])))
 
 (defn mouse-button []
   (let [x (q/mouse-x)
@@ -169,6 +181,14 @@
       (start-synth)
       (stop-synth))))
 
+(defn key-change [pressed]
+  (let [key (if (= processing.core.PConstants/CODED (int (q/raw-key)))
+              (q/key-code)
+              (q/raw-key))]
+    ;;(println key)
+    (if (= key KeyEvent/VK_SHIFT)
+      (set-shift-key-down pressed))))
+
 (defn run []
   (q/defsketch doodle
     :title          "atlas2"
@@ -176,13 +196,15 @@
     :draw           draw
     :mouse-pressed  mouse-button
     :mouse-released mouse-button
+    :key-pressed    (partial key-change true)
+    :key-released   (partial key-change false)
     :size           [800 800]))
 
 ;; exec this to start the window
 ;; (run)
 
 ;; click on the diagram to play notes.
-;; FIXME - add grid of
+;; use SHIFT key to select diatonic/consonance
 
 ;; use (o/stop) if it gets stuck playing
 
