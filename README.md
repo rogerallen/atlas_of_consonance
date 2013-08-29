@@ -9,7 +9,7 @@ Clone this repo.
 ## Usage
 
 ```clj
-lein run
+lein run 1
 ```
 
 Then click in the scale to hear either the Consonance-inspired tones or the standard diatonic tuning notes.
@@ -17,7 +17,7 @@ Then click in the scale to hear either the Consonance-inspired tones or the stan
 ![Screenshot](https://github.com/rogerallen/atlas_of_consonance/raw/master/doc/atlas1.png)
 
 ```clj
-lein run
+lein run 2
 ```
 
 Then click in the grid to hear either the Consonance-inspired chords or the standard diatonic tuning chords.
