@@ -16,7 +16,15 @@ Then click in the scale to hear either the Consonance-inspired tones or the stan
 
 ![Screenshot](https://github.com/rogerallen/atlas_of_consonance/raw/master/doc/atlas1.png)
 
-or use your favorite repl for more control
+```clj
+lein run
+```
+
+Then click in the grid to hear either the Consonance-inspired chords or the standard diatonic tuning chords.
+
+![Screenshot](https://github.com/rogerallen/atlas_of_consonance/raw/master/doc/atlas2.png)
+
+or use your favorite repl for more control like this
 
 ```clj
 user> (ns atlas-of-consonance.atlas1)
