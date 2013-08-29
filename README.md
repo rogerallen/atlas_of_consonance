@@ -8,6 +8,8 @@ Clone this repo.
 
 ## Usage
 
+### Atlas1 - Scale Exploration
+
 ```clj
 lein run 1
 ```
@@ -15,6 +17,8 @@ lein run 1
 Then click in the scale to hear either the Consonance-inspired tones or the standard diatonic tuning notes.
 
 ![Screenshot](https://github.com/rogerallen/atlas_of_consonance/raw/master/doc/atlas1.png)
+
+### Atlas2 - Chord Exploration
 
 ```clj
 lein run 2
