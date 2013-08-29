@@ -2,6 +2,12 @@
 
 Tools to explore ideas from Norman Sohl's [Atlas of Consonance](http://www.sohl.com/mt/maptone.html) with Overtone and Quil.
 
+I read Mr. Sohl's wiki and was intrigued by the diagrams and the ideas.  Perhaps you will be, too?  In order to make sense of the atlases below, please read the document.
+
+I think it turns out to be quite interesting to hear the subtle differences between notes and chords derived in this method vs. the diatonic scale.  Warning: you may not be able to "un-hear" this.  :-)
+
+The code is a work-in-progress, so send feedback.  I've found subtle differences in my graphs vs. his, so perhaps there are bugs.  At this point, I believe my code is correct, but there may be something wrong as I cannot see the Major Triad (C-E-G) and I would certainly expect that to be found via this method.
+
 ## Installation
 
 Clone this repo.
