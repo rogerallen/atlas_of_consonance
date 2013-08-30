@@ -1,10 +1,9 @@
-(ns atlas-of-consonance.common)
+(ns atlas-of-consonance.common
+  (:require clojure.set))
 
 ;; ======================================================================
 ;; ideas from Norman Sohl's Atlas of Consonance
 ;; http://www.sohl.com/mt/maptone.html
-
-;; FIXME -- move this to a common location
 
 (defn overtone-seq
   "create an infinite sequence of overtones, given a tonic freq f"
