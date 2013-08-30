@@ -40,7 +40,7 @@
 (defn set-num-octaves [n]
   (swap! freq-histo-atom
          (fn [x] (sorted-freq-map (take-norm-per-octave-seqs
-                                  @tonic-freq-atom n))))
+                                  n @tonic-freq-atom))))
   nil)
 
 (defn start-synth []
@@ -147,7 +147,7 @@
 
 (defn run []
   (q/defsketch doodle
-    :title          "atlas1"
+    :title          "Atlas 1"
     :setup          setup
     :draw           draw
     :mouse-pressed  mouse-button

@@ -29,18 +29,18 @@
 (defn take-per-octave-seqs
   "filter per-octave-seqs to be within the range of n octaves.  So,
   n=7 would filter out some notes in the 6..12 octave range"
-  [f n] ;; FIXME n first
+  [n f]
   (map #(filter (fn [x] (< x (* (inc n) f))) %)
        (take n (per-octave-seqs f))))
 
 (defn take-norm-per-octave-seqs
   "Normalize per-octave-seqs to the tonic octave range (e.g. 3f -> 3f/2)."
-  [f n] ;; FIXME n first
+  [n f]
   (let [overtones (overtone-seq f)]
     (map (fn [f1 s]
            (map (fn [s1] (* f (/ s1 f1))) s))
          overtones
-         (take-per-octave-seqs f n))))
+         (take-per-octave-seqs n f))))
 
 (defn sorted-freq-map
   "take a sequence of frequency sequences into a sorted histogram map"
@@ -63,7 +63,7 @@
 
 (defn chords-with-overtones
   [n f]
-  (let [fs (->> (take-norm-per-octave-seqs f n)
+  (let [fs (->> (take-norm-per-octave-seqs n f)
                 (sorted-freq-map)
                 (sort)
                 (keys))]
